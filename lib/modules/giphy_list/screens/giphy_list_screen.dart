@@ -1,6 +1,7 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:giphy_app/core/constants/app_constants.dart';
 import 'package:giphy_app/core/di/injection.dart';
 import 'package:giphy_app/core/router/coordinators/giphy_coordinator.dart';
 import 'package:giphy_app/modules/giphy_list/cubit/giphy_list_cubit.dart';
@@ -10,6 +11,13 @@ import 'package:giphy_app/modules/giphy_list/screens/components/components/giphy
 import 'package:giphy_app/core/common/widgets/loading_indicator.dart';
 import 'package:giphy_app/modules/giphy_list/screens/components/components/search_box_widget.dart';
 
+/// Main screen for searching and displaying GIFs from Giphy.
+///
+/// Features:
+/// - Search functionality with real-time results
+/// - Infinite scroll pagination
+/// - Responsive grid layout
+/// - Error handling with user-friendly messages
 @RoutePage()
 class GiphyListScreen extends StatefulWidget {
   const GiphyListScreen({super.key});
@@ -29,9 +37,14 @@ class _GiphyListScreenState extends State<GiphyListScreen> {
     _scrollController.addListener(_onScroll);
   }
 
+  /// Handles scroll events to trigger pagination.
+  ///
+  /// Loads more GIFs when user scrolls within [AppConstants.scrollThreshold]
+  /// pixels from the bottom of the list.
   void _onScroll() {
     if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+        _scrollController.position.maxScrollExtent -
+            AppConstants.scrollThreshold) {
       _cubit.loadMoreGifs();
     }
   }
@@ -112,27 +125,46 @@ class _GridView extends StatelessWidget {
     required this.onNavigateToDetail,
   });
 
+  /// Calculates the number of columns for the grid based on screen width and orientation.
+  ///
+  /// Returns different column counts for portrait and landscape modes
+  /// to optimize the layout for different screen sizes.
   int _getCrossAxisCount(BuildContext context, Orientation orientation) {
     final width = MediaQuery.of(context).size.width;
 
     if (orientation == Orientation.portrait) {
-      if (width > 1200) return 4;
-      if (width > 800) return 3;
-      if (width > 600) return 3;
-      return 2;
+      if (width > AppConstants.breakpointLarge) {
+        return AppConstants.portraitColumnsLarge;
+      }
+      if (width > AppConstants.breakpointMedium) {
+        return AppConstants.portraitColumnsMedium;
+      }
+      if (width > AppConstants.breakpointSmall) {
+        return AppConstants.portraitColumnsMedium;
+      }
+      return AppConstants.portraitColumnsSmall;
     } else {
-      if (width > 1200) return 6;
-      if (width > 800) return 5;
-      if (width > 600) return 4;
-      return 3;
+      if (width > AppConstants.breakpointLarge) {
+        return AppConstants.landscapeColumnsXLarge;
+      }
+      if (width > AppConstants.breakpointMedium) {
+        return AppConstants.landscapeColumnsLarge;
+      }
+      if (width > AppConstants.breakpointSmall) {
+        return AppConstants.landscapeColumnsMedium;
+      }
+      return AppConstants.landscapeColumnsSmall;
     }
   }
 
+  /// Calculates the aspect ratio for grid items based on orientation.
+  ///
+  /// Portrait mode uses square items (1.0), landscape uses wider items (1.3).
   double _getAspectRatio(BuildContext context, Orientation orientation) {
     if (orientation == Orientation.portrait) {
-      return 1.0;
+      return AppConstants.portraitAspectRatio;
     } else {
-      return 1.3;
+      return AppConstants.landscapeAspectRatio;
     }
   }
 
@@ -142,11 +174,11 @@ class _GridView extends StatelessWidget {
       builder: (context, orientation) {
         return GridView.builder(
           controller: scrollController,
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AppConstants.gridSpacing),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: _getCrossAxisCount(context, orientation),
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+            crossAxisSpacing: AppConstants.gridSpacing,
+            mainAxisSpacing: AppConstants.gridSpacing,
             childAspectRatio: _getAspectRatio(context, orientation),
           ),
           itemCount: state.gifs.length + (state.hasMore ? 1 : 0),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:giphy_app/core/api_client/base_api_client.dart';
+import 'package:giphy_app/core/constants/app_constants.dart';
 import 'package:injectable/injectable.dart';
 
 import 'exceptions/bad_request_exception.dart';
@@ -14,24 +15,43 @@ import 'exceptions/timeout_exception.dart';
 import 'exceptions/unauthorized_exception.dart';
 import 'exceptions/unknown_api_exception.dart';
 
+/// Custom API client implementation that handles HTTP requests
+/// with comprehensive error handling and logging.
+///
+/// This client:
+/// - Configures Dio with base URL and timeouts
+/// - Adds logging interceptor for debugging
+/// - Maps HTTP errors to custom exception types
+/// - Handles network connectivity issues
 @Injectable(as: BaseApiClient)
 class ApiClient extends BaseApiClient {
   final Dio _dio;
 
   ApiClient(this._dio) {
     _dio.options = BaseOptions(
-      baseUrl: dotenv.env['BASE_URL'] ?? '',
-      connectTimeout: Duration(seconds: 20),
-      receiveTimeout: Duration(seconds: 20),
-      sendTimeout: Duration(seconds: 20),
+      baseUrl: dotenv.env[AppConstants.apiBaseUrlKey] ?? '',
+      connectTimeout: Duration(seconds: AppConstants.connectTimeout),
+      receiveTimeout: Duration(seconds: AppConstants.receiveTimeout),
+      sendTimeout: Duration(seconds: AppConstants.sendTimeout),
       headers: {'accept': 'application/json'},
     );
 
+    // Add logging interceptor for debugging API requests/responses
     dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
   }
 
   @override
   Dio get dio => _dio;
+  /// Performs a GET request and handles the response.
+  ///
+  /// Throws custom exceptions based on the error type:
+  /// - [ConnectionException] for network connectivity issues
+  /// - [TimeoutException] for request timeouts
+  /// - [BadRequestException] for 400 status codes
+  /// - [UnauthorizedException] for 401/403 status codes
+  /// - [NotFoundException] for 404/405 status codes
+  /// - [ServerErrorException] for 5xx status codes
+  /// - [UnknownApiException] for other errors
   @override
   Future<T> get<T>({
     required String path,
@@ -46,6 +66,9 @@ class ApiClient extends BaseApiClient {
     return _handleResponse(response);
   }
 
+  /// Handles the HTTP response and converts it to the expected type.
+  ///
+  /// Validates the response data type and maps errors to custom exceptions.
   Future<T> _handleResponse<T>(Future<Response> response) async {
     try {
       final data = (await response).data;
@@ -66,6 +89,9 @@ class ApiClient extends BaseApiClient {
     }
   }
 
+  /// Maps DioException to appropriate custom exception types.
+  ///
+  /// Handles timeout errors and HTTP status codes.
   Never _handleDioException(DioException e) {
     final errorMessage = _processErrorMessage(e);
     final errorCode = _processErrorCode(e);
@@ -103,6 +129,11 @@ class ApiClient extends BaseApiClient {
     }
   }
 
+  /// Extracts error message from API response.
+  ///
+  /// Tries to find error message in common response formats:
+  /// - Top-level 'message' field
+  /// - Nested 'error.message' field
   String? _processErrorMessage(DioException e) {
     const errorMessageKey = 'message';
     const errorKey = 'error';
@@ -125,6 +156,11 @@ class ApiClient extends BaseApiClient {
     return null;
   }
 
+  /// Extracts error code from API response.
+  ///
+  /// Tries to find error code in common response formats:
+  /// - Top-level 'name' or 'codeName' field
+  /// - Nested 'error.codeName' or 'error.name' field
   String? _processErrorCode(DioException e) {
     const errorCodeKey = 'codeName';
     const nameKey = 'name';

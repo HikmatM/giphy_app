@@ -11,8 +11,16 @@ pubspec.lock
 # If you don't generate documentation locally you can remove this line.
 doc/api/
 
-# dotenv environment variables file
-# .env*
+# Environment variables (sensitive data)
+# Ignore all .env files except .env.example (template file)
+.env
+.env.local
+.env.*.local
+.env.dev
+.env.staging
+.env.prod
+.env.development
+.env.production
 
 # Avoid committing generated Javascript files:
 *.dart.js
@@ -27,3 +35,81 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Generated code files
+*.g.dart
+*.freezed.dart
+*.config.dart
+*.gr.dart
+
+# Coverage
+coverage/
+*.lcov
+
+# IDE - VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IDE - Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - Xcode
+*.xcconfig.user
+*.xcuserstate
+*.xcworkspace
+!default.xcworkspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Android
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+.gradle/
+local.properties
+*.keystore
+!debug.keystore
+
+# iOS
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+**/*sync/
+.sconsign.dblite
+.tags*
+**/.vagrant/
+**/DerivedData/
+**/Icon?
+**/Pods/
+**/.symlinks/
+**/profile
+**/xcuserdata
+**/.xcode.env.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

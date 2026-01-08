@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:giphy_app/core/di/injection.dart';
 import 'package:giphy_app/core/router/app_router.dart';
 
+/// Root application widget.
+///
+/// Configures:
+/// - Material app with router
+/// - Navigation observers for route tracking
+/// - Theme configuration
 class App extends StatelessWidget {
   const App({super.key});
 

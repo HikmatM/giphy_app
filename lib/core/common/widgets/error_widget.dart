@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:giphy_app/core/constants/app_constants.dart';
 
+/// Widget for displaying error messages to users.
+///
+/// Shows an error icon and message in a user-friendly format.
 class ErrorDisplayWidget extends StatelessWidget {
   final String message;
 
@@ -7,8 +11,8 @@ class ErrorDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    IconData errorIcon = Icons.error_outline;
-    Color errorColor = Colors.red;
+    const IconData errorIcon = Icons.error_outline;
+    const Color errorColor = Colors.red;
 
     return Center(
       child: Padding(
@@ -16,8 +20,8 @@ class ErrorDisplayWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(errorIcon, size: 64, color: errorColor),
-            const SizedBox(height: 16),
+            const Icon(errorIcon, size: AppConstants.errorIconSize, color: errorColor),
+            const SizedBox(height: AppConstants.defaultPadding),
             Text(
               message,
               textAlign: TextAlign.center,
